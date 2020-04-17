@@ -148,6 +148,7 @@ int main(void)
   aTxBuffer[0] = 0xF0A1;
   aTxBuffer[TXRX_SIZE - 1] = 0xF0A1;
 
+  GPIOA->BSRR = (1<<6); // SET
   /*##-1- Start the Full Duplex Communication process ########################*/
   /* While the SPI in TransmitReceive process, user can transmit data through
      "aTxBuffer" buffer & receive data through "aRxBuffer" */
@@ -317,7 +318,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GRN_GPIO_Port, GRN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GRN_Pin|GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -331,6 +332,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GRN_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
@@ -349,8 +357,9 @@ static void MX_GPIO_Init(void)
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
   /* Turn LED2 on: Transfer in transmission/reception process is complete */
+	GPIOA->BSRR = (1<<22);
 	HAL_GPIO_WritePin(GPIOA, GRN_Pin, SET);
-  wTransferState = TRANSFER_COMPLETE;
+	wTransferState = TRANSFER_COMPLETE;
 }
 
 /**
